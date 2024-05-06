@@ -26,7 +26,7 @@ namespace PortfolioBI.Controllers
         /// this method is used for uploading a CVS file with stock price data & inserting the data into our database table called FinancialData
         /// for times sake I'm just uploading the data that is generated from Yahoo Finance and not coming up with a method to handle this, since it doesn't include a ticker
         /// i'm going to just manually insert the ticker price into the database using SSMS
-        /// 
+        /// data source: https://finance.yahoo.com/quote/NVDA/history?period1=1420070400&period2=1435622400
         [HttpPost]
         public IActionResult Upload()
         {
