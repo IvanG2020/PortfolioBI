@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using PortfolioBI.Data;
 using PortfolioBI.Models;
 using System.Diagnostics;
@@ -19,7 +20,27 @@ namespace PortfolioBI.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            DateTime startDate = new DateTime(2015, 1, 1);
+            DateTime endDate = new DateTime(2015, 6, 30);
+
+            var glwData = _context.FinancialData
+                .Where(d => d.Ticker == "GLW" && d.Date >= startDate && d.Date <= endDate);
+            var nvdaData = _context.FinancialData
+                .Where(d => d.Ticker == "NVDA" && d.Date >= startDate && d.Date <= endDate);
+
+            var stockSummary = new
+            {
+                GLWMin = glwData.Min(d => d.Close),
+                GLWMax = glwData.Max(d => d.Close),
+                GLWAvg = glwData.Average(d => d.Close),
+                NVDAMin = nvdaData.Min(d => d.Close),
+                NVDAMax = nvdaData.Max(d => d.Close),
+                NVDAAvg = nvdaData.Average(d => d.Close)
+            };
+
+            string stockSummaryJson = JsonConvert.SerializeObject(stockSummary);
+
+            return View(model: stockSummaryJson); // Pass the serialized JSON as a string
         }
 
         /// <summary>

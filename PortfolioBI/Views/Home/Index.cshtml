@@ -1,21 +1,38 @@
-﻿@{
+﻿@using Newtonsoft.Json
+@model string
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h2>Upload CSV File</h2>
+    <form asp-controller="Home" asp-action="Upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" />
+        <button type="submit">Upload</button>
+    </form>
+    <br />
 </div>
 
-@model string
 
-<h2>Upload CSV File</h2>
-<form asp-controller="Home" asp-action="Upload" method="post" enctype="multipart/form-data">
-    <input type="file" name="file" />
-    <button type="submit">Upload</button>
-</form>
 
 @if (!string.IsNullOrEmpty(Model))
 {
-    <p>@Model</p>
+    var summary = JsonConvert.DeserializeObject<dynamic>(Model);
+
+    <div class="text-center">
+        <h1 class="display-4">
+            Stock Summary from 1/1/2015 to
+            6/30/2015.
+        </h1>
+        <h2>GLW</h2>
+        <p>Min: @summary.GLWMin</p>
+        <p>Max: @summary.GLWMax</p>
+        <p>Average: @string.Format("{0:F2}", summary.GLWAvg)</p> <!-- Format average to two decimal places -->
+
+        <h2>NVDA</h2>
+        <p>Min: @summary.NVDAMin</p>
+        <p>Max: @summary.NVDAMax</p>
+        <p>Average: @string.Format("{0:F2}", summary.NVDAAvg)</p> <!-- Format average to two decimal places -->
+    </div>
 }
