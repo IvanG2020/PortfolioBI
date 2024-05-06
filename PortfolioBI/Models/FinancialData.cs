@@ -13,5 +13,6 @@ namespace PortfolioBI.Models
         public double Close { get; set; }
         public double AdjustClose { get; set; }
         public int Volume { get; set; }
+        public string Ticker { get; set; }
     }
 }
