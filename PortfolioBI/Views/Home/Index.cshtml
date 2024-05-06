@@ -14,25 +14,51 @@
     <br />
 </div>
 
-
-
 @if (!string.IsNullOrEmpty(Model))
 {
-    var summary = JsonConvert.DeserializeObject<dynamic>(Model);
+    var data = JsonConvert.DeserializeObject<dynamic>(Model);
 
     <div class="text-center">
-        <h1 class="display-4">
-            Stock Summary from 1/1/2015 to
-            6/30/2015.
-        </h1>
-        <h2>GLW</h2>
-        <p>Min: @summary.GLWMin</p>
-        <p>Max: @summary.GLWMax</p>
-        <p>Average: @string.Format("{0:F2}", summary.GLWAvg)</p> <!-- Format average to two decimal places -->
+        <h1 class="display-4">Stock Summary from 1/1/2015 to 6/30/2015</h1>
 
-        <h2>NVDA</h2>
-        <p>Min: @summary.NVDAMin</p>
-        <p>Max: @summary.NVDAMax</p>
-        <p>Average: @string.Format("{0:F2}", summary.NVDAAvg)</p> <!-- Format average to two decimal places -->
+        <div>
+            <h2>GLW</h2>
+            <p>Min: @data.GLWSummary.Min</p>
+            <p>Max: @data.GLWSummary.Max</p>
+            <p>Average: @string.Format("{0:F2}", data.GLWSummary.Average)</p>
+
+            @if (data.GLWSpike != null)
+            {
+                <h3>Significant Spike:</h3>
+                <p>Date: @((DateTime)data.GLWSpike.Date)</p>
+                <p>Price: @data.GLWSpike.Close.ToString("F2")</p>
+                <p>Previous Price: @data.GLWSpike.PreviousClose.ToString("F2")</p>
+                <p>Explanation: Possible Earnings Report or Other Related News</p>
+            }
+            else
+            {
+                <p>No significant spike found for GLW</p>
+            }
+        </div>
+
+        <div>
+            <h2>NVDA</h2>
+            <p>Min: @data.NVDASummary.Min</p>
+            <p>Max: @data.NVDASummary.Max</p>
+            <p>Average: @string.Format("{0:F2}", data.NVDASummary.Average)</p>
+
+            @if (data.NVDASpike != null)
+            {
+                <h3>Significant Spike:</h3>
+                <p>Date: @((DateTime)data.NVDASpike.Date)</p>
+                <p>Price: @data.NVDASpike.Close.ToString("F2")</p>
+                <p>Previous Price: @data.NVDASpike.PreviousClose.ToString("F2")</p>
+                <p>Explanation: Possible Earnings Report or Other Related News</p>
+            }
+            else
+            {
+                <p>No significant spike found for NVDA</p>
+            }
+        </div>
     </div>
 }
