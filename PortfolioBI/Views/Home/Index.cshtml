@@ -12,13 +12,11 @@
         <button type="submit">Upload</button>
     </form>
     <br />
-</div>
 
-@if (!string.IsNullOrEmpty(Model))
-{
-    var data = JsonConvert.DeserializeObject<dynamic>(Model);
+    @if (!string.IsNullOrEmpty(Model))
+    {
+        var data = JsonConvert.DeserializeObject<dynamic>(Model);
 
-    <div class="text-center">
         <h1 class="display-4">Stock Summary from 1/1/2015 to 6/30/2015</h1>
 
         <div>
@@ -26,8 +24,7 @@
             <p>Min: @data.GLWSummary.Min</p>
             <p>Max: @data.GLWSummary.Max</p>
             <p>Average: @string.Format("{0:F2}", data.GLWSummary.Average)</p>
-            <p style="font-weight: bold; color: green" >$1000 investment YTD return on first major spike: $@data.totalROI.ToString("F2")</p>
-
+            <p style="font-weight: bold; color: green">$1000 investment YTD return on first major spike: $@data.totalROI.ToString("F2")</p>
             @if (data.GLWSpike != null)
             {
                 <h3>Significant Spike:</h3>
@@ -61,5 +58,68 @@
                 <p>No significant spike found for NVDA</p>
             }
         </div>
-    </div>
-}
+
+        <canvas id="glwChart" width="400" height="200"></canvas>
+        <canvas id="nvdaChart" width="400" height="200"></canvas>
+        }
+    }
+
+    @section Scripts {
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                setTimeout(function () { // Delay the execution to let other scripts and styles settle
+                    var rawData = '@Html.Raw(Model)';
+                    var data = JSON.parse(rawData);
+
+                    var glwCtx = document.getElementById('glwChart').getContext('2d');
+                    var nvdaCtx = document.getElementById('nvdaChart').getContext('2d');
+
+                    new Chart(glwCtx, {
+                        type: 'line',
+                        data: {
+                            labels: data.GLWDates,
+                            datasets: [{
+                                label: 'GLW Close Prices',
+                                data: data.GLWPrices,
+                                borderColor: 'rgb(75, 192, 192)',
+                                fill: false,
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: false
+                                }
+                            }
+                        }
+                    });
+
+                    new Chart(nvdaCtx, {
+                        type: 'line',
+                        data: {
+                            labels: data.NVDADates,
+                            datasets: [{
+                                label: 'NVDA Close Prices',
+                                data: data.NVDAPrices,
+                                borderColor: 'rgb(255, 99, 132)',
+                                fill: false,
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: false
+                                }
+                            }
+                        }
+                    });
+                }, 1000); // Adjust the timeout duration as needed. We need to make sure all data loads before we initialize these js charts
+            });
+        </script>
+    }
+

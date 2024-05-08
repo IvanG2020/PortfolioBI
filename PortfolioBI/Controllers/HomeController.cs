@@ -18,42 +18,41 @@ namespace PortfolioBI.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        // come back tomorrow and refactor and add more comments
+        public async Task<IActionResult> Index()
         {
             DateTime startDate = new DateTime(2015, 1, 1);
             DateTime endDate = new DateTime(2015, 6, 30);
 
-            // list of glw stock data from the database
-            var glwData = _context.FinancialData
+            var glwData = await _context.FinancialData
+                .Where(d => d.Ticker == "GLW" && d.Date >= startDate && d.Date <= endDate)
+                .Select(d => new { d.Date, d.Close })
+                .OrderBy(d => d.Date)
+                .ToListAsync();
+
+            var nvdaData = await _context.FinancialData
+                .Where(d => d.Ticker == "NVDA" && d.Date >= startDate && d.Date <= endDate)
+                .Select(d => new { d.Date, d.Close })
+                .OrderBy(d => d.Date)
+                .ToListAsync();
+
+            
+            var glwFinancialData = await _context.FinancialData
                 .Where(d => d.Ticker == "GLW" && d.Date >= startDate && d.Date <= endDate)
                 .OrderBy(d => d.Date)
-                .ToList();
+                .ToListAsync();
 
-            // list of nvda stock data from the database
-            var nvdaData = _context.FinancialData
+            
+            var nvdaFinancialData = await _context.FinancialData
                 .Where(d => d.Ticker == "NVDA" && d.Date >= startDate && d.Date <= endDate)
                 .OrderBy(d => d.Date)
-                .ToList();
-
-            var glwSummary = new StockSummary
-            {
-                Min = glwData.Min(d => d.Close),
-                Max = glwData.Max(d => d.Close),
-                Average = glwData.Average(d => d.Close)
-            };
-
-            var nvdaSummary = new StockSummary
-            {
-                Min = nvdaData.Min(d => d.Close),
-                Max = nvdaData.Max(d => d.Close),
-                Average = nvdaData.Average(d => d.Close)
-            };
+                .ToListAsync();
 
             // first major glw spike
-            var glwSpike = FindSignificantSpike(glwData);
+            var glwSpike = FindSignificantSpike(glwFinancialData);
 
             // first major nvda spike
-            var nvdaSpike = FindSignificantSpike(nvdaData);
+            var nvdaSpike = FindSignificantSpike(nvdaFinancialData);
 
             // calcluate $1000 investment into GLW on 1/2/2015 and sell the first spike
             // 1/1/2015 was a sunday so market was closed
@@ -66,11 +65,25 @@ namespace PortfolioBI.Controllers
             // Fetch the previous close price for NVDA spike
             var nvdaPreviousPrice = nvdaData.FirstOrDefault(d => d.Date < nvdaSpike.Date)?.Close;
 
-            // this is the data we will pass to the front end
+            // data we're passing to the front end 
             var data = new
             {
-                GLWSummary = glwSummary,
-                NVDASummary = nvdaSummary,
+                GLWSummary = new StockSummary
+                {
+                    Min = glwData.Min(d => d.Close),
+                    Max = glwData.Max(d => d.Close),
+                    Average = glwData.Average(d => d.Close)
+                },
+                NVDASummary = new StockSummary
+                {
+                    Min = nvdaData.Min(d => d.Close),
+                    Max = nvdaData.Max(d => d.Close),
+                    Average = nvdaData.Average(d => d.Close)
+                },
+                GLWDates = glwData.Select(g => g.Date.ToShortDateString()),
+                GLWPrices = glwData.Select(g => g.Close),
+                NVDADates = nvdaData.Select(n => n.Date.ToShortDateString()),
+                NVDAPrices = nvdaData.Select(n => n.Close),
                 totalROI = glwROI,
                 GLWSpike = new
                 {
@@ -86,11 +99,25 @@ namespace PortfolioBI.Controllers
                 }
             };
 
-            // convert our data into a format that can be easily passed onto the front end
             string jsonData = JsonConvert.SerializeObject(data);
-
             return View(model: jsonData);
         }
+
+        //come back to this later
+        //private List<FinancialData> GetSpikes(List<FinancialData> data)
+        //{
+        //    var spikes = new List<FinancialData>();
+        //    for (int i = 1; i < data.Count; i++)
+        //    {
+        //        double previousPrice = data[i - 1].Close;
+        //        double currentPrice = data[i].Close;
+        //        if (((currentPrice - previousPrice) / previousPrice) * 100 > 7) // 5% spike threshold
+        //        {
+        //            spikes.Add(data[i]);
+        //        }
+        //    }
+        //    return spikes;
+        //}
 
 
         // method used for finding significant price spike
@@ -113,12 +140,12 @@ namespace PortfolioBI.Controllers
         }
 
 
-    /// <summary>
-    /// this method is used for uploading a CVS file with stock price data & inserting the data into our database table called FinancialData
-    /// for times sake I'm just uploading the data that is generated from Yahoo Finance and not coming up with a method to handle it including the ticker
-    /// i'm going to just manually insert the ticker price on the FinancialData model below 
-    /// data source: https://finance.yahoo.com/quote/NVDA/history?period1=1420070400&period2=1435622400
-    [HttpPost]
+        /// <summary>
+        /// this method is used for uploading a CVS file with stock price data & inserting the data into our database table called FinancialData
+        /// for times sake I'm just uploading the data that is generated from Yahoo Finance and not coming up with a method to handle it including the ticker
+        /// i'm going to just manually insert the ticker price on the FinancialData model below 
+        /// data source: https://finance.yahoo.com/quote/NVDA/history?period1=1420070400&period2=1435622400
+        [HttpPost]
         public IActionResult Upload()
         {
             try
