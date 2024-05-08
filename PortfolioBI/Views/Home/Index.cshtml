@@ -26,6 +26,7 @@
             <p>Min: @data.GLWSummary.Min</p>
             <p>Max: @data.GLWSummary.Max</p>
             <p>Average: @string.Format("{0:F2}", data.GLWSummary.Average)</p>
+            <p style="font-weight: bold; color: green" >$1000 investment YTD return on first major spike: $@data.totalROI.ToString("F2")</p>
 
             @if (data.GLWSpike != null)
             {

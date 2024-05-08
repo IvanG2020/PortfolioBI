@@ -23,11 +23,13 @@ namespace PortfolioBI.Controllers
             DateTime startDate = new DateTime(2015, 1, 1);
             DateTime endDate = new DateTime(2015, 6, 30);
 
+            // list of glw stock data from the database
             var glwData = _context.FinancialData
                 .Where(d => d.Ticker == "GLW" && d.Date >= startDate && d.Date <= endDate)
                 .OrderBy(d => d.Date)
                 .ToList();
 
+            // list of nvda stock data from the database
             var nvdaData = _context.FinancialData
                 .Where(d => d.Ticker == "NVDA" && d.Date >= startDate && d.Date <= endDate)
                 .OrderBy(d => d.Date)
@@ -47,8 +49,16 @@ namespace PortfolioBI.Controllers
                 Average = nvdaData.Average(d => d.Close)
             };
 
+            // first major glw spike
             var glwSpike = FindSignificantSpike(glwData);
+
+            // first major nvda spike
             var nvdaSpike = FindSignificantSpike(nvdaData);
+
+            // calcluate $1000 investment into GLW on 1/2/2015 and sell the first spike
+            // 1/1/2015 was a sunday so market was closed
+            var glwInvestment = glwData.FirstOrDefault();
+            var glwROI = (1000 / glwInvestment?.Close) * glwSpike.Close;
 
             // Fetch the previous close price for GLW spike
             var glwPreviousPrice = glwData.FirstOrDefault(d => d.Date < glwSpike.Date)?.Close;
@@ -56,10 +66,12 @@ namespace PortfolioBI.Controllers
             // Fetch the previous close price for NVDA spike
             var nvdaPreviousPrice = nvdaData.FirstOrDefault(d => d.Date < nvdaSpike.Date)?.Close;
 
+            // this is the data we will pass to the front end
             var data = new
             {
                 GLWSummary = glwSummary,
                 NVDASummary = nvdaSummary,
+                totalROI = glwROI,
                 GLWSpike = new
                 {
                     Date = glwSpike.Date,
@@ -74,11 +86,14 @@ namespace PortfolioBI.Controllers
                 }
             };
 
+            // convert our data into a format that can be easily passed onto the front end
             string jsonData = JsonConvert.SerializeObject(data);
 
             return View(model: jsonData);
         }
 
+
+        // method used for finding significant price spike
         private FinancialData FindSignificantSpike(List<FinancialData> data)
         {
             FinancialData spike = null;
@@ -156,12 +171,13 @@ namespace PortfolioBI.Controllers
             }
         }
 
-
+        // auto generated code disregard
         public IActionResult Privacy()
         {
             return View();
         }
 
+        // auto generated code disregard
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
