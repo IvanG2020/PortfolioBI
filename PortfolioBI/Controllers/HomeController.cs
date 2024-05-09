@@ -36,7 +36,11 @@ namespace PortfolioBI.Controllers
                 .OrderBy(d => d.Date)
                 .ToListAsync();
 
-            
+            //prevent the site from crashing when a fresh copy is cloned because initially the database will be empty 
+            if (glwData.Count == 0 || nvdaData.Count == 0)
+                return View(model: null);
+
+
             var glwFinancialData = await _context.FinancialData
                 .Where(d => d.Ticker == "GLW" && d.Date >= startDate && d.Date <= endDate)
                 .OrderBy(d => d.Date)
