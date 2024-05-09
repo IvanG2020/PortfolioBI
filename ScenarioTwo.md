@@ -33,7 +33,7 @@ The sample provided is as follows:
 ## Corrections
 
 ### Correct GrossProceeds
-1. Correct the GrossProceeds for the first trade from -71,070,000 to 710,700.
+1. Correct the GrossProceeds for the first trade from -71,070,000 to 710,700. The trader name going from John Smith to jsmith is questionable. This table should have a trader account number. 
 
 ### Recalculate NetProceeds
 1. For the first trade (2/8/2011):
@@ -41,7 +41,7 @@ The sample provided is as follows:
 2. For the second trade (2/8/2011):
    - Correct NetProceeds should be: 710,900 - 100 = 710,800.
 3. For the sell trade (2/11/2011):
-   - Correct NetProceeds should be: 713,600 + 100 = 713,700.
+   - Correct NetProceeds should be: 713,600 - 100 = 713,500. You do not get $100 credit from a broker for selling. It should be same -$100 as previous trades.
 
 ## Corrected Data
 
@@ -49,7 +49,7 @@ The sample provided is as follows:
 |-----------|------------|----------|--------------|------|----------|----------|-----------|---------------|-----------------|-------------|
 | 2/8/2011  | John Smith | AAPL     | GSEQ         | BUY  | 2000     | USD      | 355.35    | 710,700       | -100            | 710,600     |
 | 2/8/2011  | John Smith | AAPL     | GSEQ         | BUY  | 2000     | USD      | 355.45    | 710,900       | -100            | 710,800     |
-| 2/11/2011 | jsmith     | AAPL     | GSEQ         | SELL | 2000     | USD      | 356.80    | 713,600       | 100             | 713,700     |
+| 2/11/2011 | jsmith     | AAPL     | GSEQ         | SELL | 2000     | USD      | 356.80    | 713,600       | -100             | 713,500     |
 
 ## Workflow and Calculations
 
