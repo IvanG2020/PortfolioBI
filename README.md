@@ -42,3 +42,12 @@ $ Update-Database
 # In the directory of PortfolioBI you must upload CVS files with the history stock data. This data will be inserted into the MS SQL
 $ These documents are located in Data/DataSource NVDA.CVS & GLW.CVS
 ```
+
+<h2 align="center">
+  <img src="https://github.com/IvanG2020/PortfolioBI/blob/master/screenshotone.png" alt="PortfolioBI" width="1080px" />
+  <br>
+</h2>
+<h2 align="center">
+  <img src="https://github.com/IvanG2020/PortfolioBI/blob/master/screenshottwo.png" alt="PortfolioBI" width="1080px" />
+  <br>
+</h2>
